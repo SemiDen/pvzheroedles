@@ -100,9 +100,61 @@
       margin-top: 5px;
       font-size: 14px;
     }
+
+    .notice {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      font-size: 20px;
+      padding: 20px;
+    }
+
+    .notice-content {
+      background-color: rgba(255, 0, 0, 0.9);
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 600px;
+      text-align: center;
+      position: relative;
+    }
+
+    .notice .close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 30px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .notice .close:hover {
+      color: black;
+    }
+
+    .plant-info {
+      margin-top: 5px;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
+
+<!-- Notice Modal -->
+<div id="notice" class="notice">
+  <div class="notice-content">
+    <div class="close" onclick="closeNotice()">❌</div>
+    <h2>NOTICE</h2>
+    <p>The game you are about to play is not affiliated with PopCap or EA, this is a fangame of Wordle and PvZ Heroes. There aren't many plants at the moment but will be soon.</p>
+  </div>
+</div>
 
 <div class="input-container">
   <input type="text" id="zombie-name" placeholder="Guess a PvZ Heroes plant..." oninput="updateSuggestions()">
@@ -228,6 +280,10 @@
 
   function closePopup() {
     document.getElementById('popup').style.display = 'none';
+  }
+
+  function closeNotice() {
+    document.getElementById('notice').style.display = 'none';
   }
 </script>
 
