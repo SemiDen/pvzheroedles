@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PvZHeroedle</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-image: url('https://th.bing.com/th/id/R.a8159110bcbe91b2a50208c1f75b80be?rik=rPfe8VdxI3p0XA&pid=ImgRaw&r=0');
+      background-size: cover;
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    .stats-header {
+      display: flex;
+      justify-content: space-around;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 10px 0;
+      margin-top: 20px;
+    }
+
+    .guess-row {
+      display: flex;
+      justify-content: space-around;
+      margin: 5px 0;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 5px 0;
+    }
+
+    .cell {
+      flex: 1;
+      margin: 0 5px;
+      padding: 5px;
+      background-color: grey;
+      border-radius: 5px;
+    }
+
+    .correct {
+      background-color: green;
+    }
+
+    .input-container {
+      margin: 20px;
+    }
+
+    #zombie-name {
+      padding: 10px;
+      font-size: 16px;
+      width: 60%;
+    }
+
+    .suggestions {
+      background: rgba(255, 255, 255, 0.9);
+      color: black;
+      max-height: 200px;
+      overflow-y: auto;
+      margin: 10px auto;
+      width: 60%;
+    }
+
+    .suggestions div {
+      padding: 5px;
+      cursor: pointer;
+    }
+
+    .suggestions div:hover {
+      background-color: lightgray;
+    }
+
+    .popup {
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -30%);
+      background: white;
+      color: black;
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
+      z-index: 999;
+    }
+
+    .popup h2 {
+      margin: 0 0 10px 0;
+    }
+
+    .popup .close {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .plant-info {
+      margin-top: 5px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="input-container">
+  <input type="text" id="zombie-name" placeholder="Guess a PvZ Heroes plant..." oninput="updateSuggestions()">
+  <div class="suggestions" id="suggestions"></div>
+</div>
+
+<div class="stats-header">
+  <span>Turn</span>
+  <span>Health</span>
+  <span>Damage</span>
+  <span>Special</span>
+</div>
+
+<div id="guesses"></div>
+
+<div class="popup" id="popup">
+  <span class="close" onclick="closePopup()">❌</span>
+  <h2>You won the PvZHeroedle!</h2>
+  <pre id="resultText"></pre>
+</div>
+
+<script>
+  const characters = [
+    { name: "Peashooter", damage: 2, health: 2, special: false },
+    { name: "Wall-nut", damage: 0, health: 6, special: false },
+    { name: "Lily Pad", damage: 0, health: 1, special: true },
+    { name: "Cabbage-pult", damage: 1, health: 3, special: true },
+    { name: "Kernel-pult", damage: 2, health: 3, special: true },
+    { name: "Threepeater", damage: 3, health: 4, special: false },
+    { name: "Spineapple", damage: 0, health: 3, special: true },
+    { name: "Repeater", damage: 2, health: 2, special: true },
+    { name: "Small-Nut", damage: 1, health: 1, special: false },
+    { name: "Sting Bean", damage: 1, health: 2, special: true },
+    { name: "Pismashio", damage: 2, health: 3, special: false },
+    { name: "Potato Mine", damage: 0, health: 1, special: true },
+    { name: "Cactus", damage: 1, health: 5, special: true },
+    { name: "Sea-shroom", damage: 2, health: 2, special: true }
+  ];
+
+  let answer = characters[Math.floor(Math.random() * characters.length)];
+  let guesses = [];
+  const maxGuesses = 7;
+  let gameOver = false;
+
+  function updateSuggestions() {
+    const input = document.getElementById('zombie-name').value.toLowerCase();
+    const container = document.getElementById('suggestions');
+    container.innerHTML = '';
+    characters.filter(p => p.name.toLowerCase().includes(input)).forEach(plant => {
+      const div = document.createElement('div');
+      div.textContent = plant.name;
+      
+      // Display plant stats
+      const plantInfo = document.createElement('div');
+      plantInfo.className = 'plant-info';
+      plantInfo.innerHTML = `Health: ${plant.health} | Damage: ${plant.damage} | Special: ${plant.special ? '✔' : '✖'}`;
+      div.appendChild(plantInfo);
+      
+      div.onclick = () => makeGuess(plant);
+      container.appendChild(div);
+    });
+  }
+
+  function makeGuess(plant) {
+    if (gameOver || guesses.length >= maxGuesses) return;
+    guesses.push(plant);
+    renderGuesses();
+    document.getElementById('zombie-name').value = '';
+    document.getElementById('suggestions').innerHTML = '';
+
+    if (plant.name === answer.name) {
+      setTimeout(() => showPopup(), 300);
+    }
+
+    // Disable input after max guesses or win
+    if (guesses.length >= maxGuesses || plant.name === answer.name) {
+      gameOver = true;
+      document.getElementById('zombie-name').disabled = true;
+    }
+  }
+
+  function renderGuesses() {
+    const container = document.getElementById('guesses');
+    container.innerHTML = '';
+    for (let i = 0; i < guesses.length; i++) {
+      const guess = guesses[i];
+      const row = document.createElement('div');
+      row.className = 'guess-row';
+
+      const turn = document.createElement('div');
+      turn.className = 'cell';
+      turn.textContent = (i + 1) + '️⃣';
+      row.appendChild(turn);
+
+      ['health', 'damage', 'special'].forEach(stat => {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        let isCorrect = guess[stat] === answer[stat];
+        if (isCorrect) cell.classList.add('correct');
+        cell.textContent = stat === 'special' ? (guess[stat] ? '✔' : '✖') : guess[stat];
+        row.appendChild(cell);
+      });
+
+      container.appendChild(row);
+    }
+  }
+
+  function showPopup() {
+    const popup = document.getElementById('popup');
+    const result = document.getElementById('resultText');
+    result.textContent = "I won the PvZHeroedle!\n";
+    for (let i = guesses.length - 1; i >= 0; i--) {
+      const guess = guesses[i];
+      let line = (i + 1) + '️⃣';
+      ['health', 'damage', 'special'].forEach(stat => {
+        line += guess[stat] === answer[stat] ? '🟩' : '🟥';
+      });
+      result.textContent += line + '\n';
+    }
+    result.textContent += "Play PvZHeroedle at (INSERT LINK HERE)";
+    popup.style.display = 'block';
+  }
+
+  function closePopup() {
+    document.getElementById('popup').style.display = 'none';
+  }
+</script>
+
+</body>
+</html>
