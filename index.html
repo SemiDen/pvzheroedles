@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PvZHeroedle</title>
   <style>
-     body {
+    body {
       font-family: sans-serif;
       background-image: url('https://th.bing.com/th/id/R.a8159110bcbe91b2a50208c1f75b80be?rik=rPfe8VdxI3p0XA&pid=ImgRaw&r=0');
       background-size: cover;
@@ -15,6 +16,10 @@
       text-align: center;
       margin: 0;
       padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
 
     .stats-header {
@@ -48,12 +53,13 @@
 
     .input-container {
       margin: 20px;
+      width: 60%;
     }
 
     #zombie-name {
       padding: 10px;
       font-size: 16px;
-      width: 60%;
+      width: 100%;
     }
 
     .suggestions {
@@ -142,178 +148,150 @@
       color: black;
     }
 
-    .plant-info {
-      margin-top: 5px;
-      font-size: 14px;
+    /* Mobile responsiveness */
+    @media (max-width: 600px) {
+      .stats-header {
+        font-size: 14px;
+        flex-direction: column;
+      }
+
+      .input-container {
+        width: 80%;
+      }
+
+      #zombie-name {
+        font-size: 18px;
+      }
+
+      .suggestions {
+        width: 80%;
+      }
+
+      .cell {
+        font-size: 12px;
+        padding: 5px;
+      }
+
+      .popup h2 {
+        font-size: 20px;
+      }
+
+      .notice {
+        font-size: 16px;
+        padding: 10px;
+      }
     }
   </style>
 </head>
 <body>
+  <h1>PvZHeroedle</h1>
 
-<!-- Notice Modal -->
-<div id="notice" class="notice">
-  <div class="notice-content">
-    <div class="close" onclick="closeNotice()">❌</div>
-    <h2>NOTICE</h2>
-    <p>
-      The game was developed by SemiDen / @candyapple.png on Discord. If you have any problems, please ping me!<br>
-      The game you are about to play is not affiliated with PopCap or EA, this is a fangame of Wordle and PvZ Heroes.<br>
-      There aren't many plants at the moment but will be soon.
-    </p>
+  <div class="stats-header">
+    <div>Zombie</div>
+    <div>Damage</div>
+    <div>Health</div>
+    <div>Amphibious</div>
   </div>
-</div>
 
+  <div id="guess-container">
+    <!-- This is where the guess rows will be dynamically added -->
+  </div>
 
-<div class="input-container">
-  <input type="text" id="zombie-name" placeholder="Guess a PvZ Heroes plant..." oninput="updateSuggestions()">
-  <div class="suggestions" id="suggestions"></div>
-</div>
+  <div class="input-container">
+    <input id="zombie-name" type="text" placeholder="Enter Zombie Name" />
+    <div class="suggestions" id="suggestions"></div>
+  </div>
 
-<div class="stats-header">
-  <span>Turn</span>
-  <span>Health</span>
-  <span>Damage</span>
-  <span>Special</span>
-</div>
+  <div class="popup" id="popup">
+    <h2>Incorrect Guess</h2>
+    <button class="close" onclick="closePopup()">X</button>
+    <div class="plant-info" id="popup-info"></div>
+  </div>
 
-<div id="guesses"></div>
+  <div class="notice" id="notice">
+    <div class="notice-content">
+      <span class="close" onclick="closeNotice()">X</span>
+      <p>Remember to guess correctly! Check the hints carefully.</p>
+    </div>
+  </div>
 
-<div class="popup" id="popup">
-  <span class="close" onclick="closePopup()">❌</span>
-  <h2>You won the PvZHeroedle!</h2>
-  <pre id="resultText"></pre>
-</div>
+  <script>
+    const zombies = [
+      { name: 'Conehead', damage: 2, health: 6, amphibious: false },
+      { name: 'Buckethead', damage: 2, health: 10, amphibious: false },
+      { name: 'Regular Zombie', damage: 1, health: 5, amphibious: false },
+      { name: 'Football Zombie', damage: 5, health: 15, amphibious: false },
+      { name: 'Digger', damage: 1, health: 5, amphibious: true },
+      // Add all other zombies here
+    ];
 
-<script>
-  const characters = [
-  { name: "Peashooter", damage: 1, health: 1, special: false },
-  { name: "Wall-nut", damage: 0, health: 6, special: false },
-  { name: "Lily Pad", damage: 0, health: 1, special: true },
-  { name: "Cabbage-pult", damage: 1, health: 3, special: true },
-  { name: "Kernel-pult", damage: 2, health: 3, special: true },
-  { name: "Threepeater", damage: 1, health: 5, special: true },
-  { name: "Spineapple", damage: 0, health: 3, special: true },
-  { name: "Repeater", damage: 2, health: 2, special: true },
-  { name: "Small-Nut", damage: 1, health: 1, special: false },
-  { name: "Sting Bean", damage: 1, health: 2, special: true },
-  { name: "Pismashio", damage: 2, health: 3, special: false },
-  { name: "Potato Mine", damage: 0, health: 1, special: true },
-  { name: "Cactus", damage: 1, health: 5, special: true },
-  { name: "Sea-shroom", damage: 2, health: 2, special: true },
-  { name: "Water Chesnut", damage: 0, health: 8, special: true },
-  { name: "Pea-nut", damage: 2, health: 4, special: true },
-  { name: "Steel Magnolia", damage: 2, health: 2, special: true },
-  { name: "Plantern", damage: 3, health: 3, special: true },
-  { name: "Primal Potato Mine", damage: 0, health: 1, special: true },
-  { name: "Grizzly Pear", damage: 5, health: 4, special: true },
-  { name: "Hibernating Berry", damage: 0, health: 8, special: true },
-  { name: "Prickly Pear", damage: 0, health: 4, special: true },
-  { name: "Smackadamia", damage: 4, health: 4, special: true },
-  { name: "Tough Beets", damage: 6, health: 1, special: true },
-  { name: "Cosmic Nut", damage: 3, health: 3, special: true },
-  { name: "Starch-lord", damage: 2, health: 4, special: true },
-  { name: "Blockbuster", damage: 3, health: 3, special: true },
-  { name: "Pumpkin Shell", damage: 2, health: 4, special: true },
-  { name: "Jugger-nut", damage: 2, health: 2, special: true },
-  { name: "Guacodile", damage: 4, health: 3, special: true },
-  { name: "Mirror-nut", damage: 0, health: 11, special: true },
-  { name: "Doom-shroom", damage: 0, health: 0, special: true },
-  { name: "Galacta-cactus", damage: 2, health: 1, special: true }
-];
+    const suggestionsElement = document.getElementById('suggestions');
+    const zombieInput = document.getElementById('zombie-name');
+    const guessContainer = document.getElementById('guess-container');
+    const popupElement = document.getElementById('popup');
+    const popupInfo = document.getElementById('popup-info');
+    const noticeElement = document.getElementById('notice');
 
+    let guesses = [];
 
-  let answer = characters[Math.floor(Math.random() * characters.length)];
-  let guesses = [];
-  const maxGuesses = 7;
-  let gameOver = false;
-
-  function updateSuggestions() {
-    const input = document.getElementById('zombie-name').value.toLowerCase();
-    const container = document.getElementById('suggestions');
-    container.innerHTML = '';
-    characters.filter(p => p.name.toLowerCase().includes(input)).forEach(plant => {
-      const div = document.createElement('div');
-      div.textContent = plant.name;
-      
-      // Display plant stats
-      const plantInfo = document.createElement('div');
-      plantInfo.className = 'plant-info';
-      plantInfo.innerHTML = `Health: ${plant.health} | Damage: ${plant.damage} | Special: ${plant.special ? '✔' : '✖'}`;
-      div.appendChild(plantInfo);
-      
-      div.onclick = () => makeGuess(plant);
-      container.appendChild(div);
-    });
-  }
-
-  function makeGuess(plant) {
-    if (gameOver || guesses.length >= maxGuesses) return;
-    guesses.push(plant);
-    renderGuesses();
-    document.getElementById('zombie-name').value = '';
-    document.getElementById('suggestions').innerHTML = '';
-
-    if (plant.name === answer.name) {
-      setTimeout(() => showPopup(), 300);
+    function updateSuggestions() {
+      suggestionsElement.innerHTML = '';
+      const query = zombieInput.value.toLowerCase();
+      if (query) {
+        const filteredZombies = zombies.filter(zombie =>
+          zombie.name.toLowerCase().includes(query)
+        );
+        filteredZombies.forEach(zombie => {
+          const suggestion = document.createElement('div');
+          suggestion.textContent = zombie.name;
+          suggestion.onclick = () => makeGuess(zombie);
+          suggestionsElement.appendChild(suggestion);
+        });
+      }
     }
 
-    // Disable input after max guesses or win
-    if (guesses.length >= maxGuesses || plant.name === answer.name) {
-      gameOver = true;
-      document.getElementById('zombie-name').disabled = true;
+    function makeGuess(zombie) {
+      guesses.push(zombie);
+      displayGuesses();
+      zombieInput.value = '';
+      suggestionsElement.innerHTML = '';
     }
-  }
 
-  function renderGuesses() {
-    const container = document.getElementById('guesses');
-    container.innerHTML = '';
-    for (let i = 0; i < guesses.length; i++) {
-      const guess = guesses[i];
-      const row = document.createElement('div');
-      row.className = 'guess-row';
-
-      const turn = document.createElement('div');
-      turn.className = 'cell';
-      turn.textContent = (i + 1) + '️⃣';
-      row.appendChild(turn);
-
-      ['health', 'damage', 'special'].forEach(stat => {
-        const cell = document.createElement('div');
-        cell.className = 'cell';
-        let isCorrect = guess[stat] === answer[stat];
-        if (isCorrect) cell.classList.add('correct');
-        cell.textContent = stat === 'special' ? (guess[stat] ? '✔' : '✖') : guess[stat];
-        row.appendChild(cell);
+    function displayGuesses() {
+      guessContainer.innerHTML = '';
+      guesses.forEach((guess, index) => {
+        const guessRow = document.createElement('div');
+        guessRow.className = 'guess-row';
+        guessRow.innerHTML = `
+          <div class="cell">${guess.name}</div>
+          <div class="cell">${guess.damage}</div>
+          <div class="cell">${guess.health}</div>
+          <div class="cell">${guess.amphibious ? 'Yes' : 'No'}</div>
+        `;
+        guessContainer.appendChild(guessRow);
       });
-
-      container.appendChild(row);
     }
-  }
 
-  function showPopup() {
-    const popup = document.getElementById('popup');
-    const result = document.getElementById('resultText');
-    result.textContent = "I won the PvZHeroedle!\n";
-    for (let i = guesses.length - 1; i >= 0; i--) {
-      const guess = guesses[i];
-      let line = (i + 1) + '️⃣';
-      ['health', 'damage', 'special'].forEach(stat => {
-        line += guess[stat] === answer[stat] ? '🟩' : '🟥';
-      });
-      result.textContent += line + '\n';
+    function closePopup() {
+      popupElement.style.display = 'none';
     }
-    result.textContent += "Play PvZHeroedle at https://semiden.github.io/pvzheroedles/";
-    popup.style.display = 'block';
-  }
 
-  function closePopup() {
-    document.getElementById('popup').style.display = 'none';
-  }
+    function showPopup(message) {
+      popupInfo.textContent = message;
+      popupElement.style.display = 'block';
+    }
 
-  function closeNotice() {
-    document.getElementById('notice').style.display = 'none';
-  }
-</script>
+    function closeNotice() {
+      noticeElement.style.display = 'none';
+    }
 
+    // Show the notice on page load
+    window.onload = () => {
+      noticeElement.style.display = 'flex';
+    }
+
+    // Add event listener to input
+    zombieInput.addEventListener('input', updateSuggestions);
+  </script>
 </body>
 </html>
