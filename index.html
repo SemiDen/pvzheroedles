@@ -178,21 +178,41 @@
 
 <script>
   const characters = [
-    { name: "Peashooter", damage: 1, health: 1, special: false },
-    { name: "Wall-nut", damage: 0, health: 6, special: false },
-    { name: "Lily Pad", damage: 0, health: 1, special: true },
-    { name: "Cabbage-pult", damage: 1, health: 3, special: true },
-    { name: "Kernel-pult", damage: 2, health: 3, special: true },
-    { name: "Threepeater", damage: 1, health: 5, special: false },
-    { name: "Spineapple", damage: 0, health: 3, special: true },
-    { name: "Repeater", damage: 2, health: 2, special: true },
-    { name: "Small-Nut", damage: 1, health: 1, special: false },
-    { name: "Sting Bean", damage: 1, health: 2, special: true },
-    { name: "Pismashio", damage: 2, health: 3, special: false },
-    { name: "Potato Mine", damage: 0, health: 1, special: true },
-    { name: "Cactus", damage: 1, health: 5, special: true },
-    { name: "Sea-shroom", damage: 2, health: 2, special: true }
-  ];
+  { name: "Peashooter", damage: 1, health: 1, special: false },
+  { name: "Wall-nut", damage: 0, health: 6, special: false },
+  { name: "Lily Pad", damage: 0, health: 1, special: true },
+  { name: "Cabbage-pult", damage: 1, health: 3, special: true },
+  { name: "Kernel-pult", damage: 2, health: 3, special: true },
+  { name: "Threepeater", damage: 1, health: 5, special: true },
+  { name: "Spineapple", damage: 0, health: 3, special: true },
+  { name: "Repeater", damage: 2, health: 2, special: true },
+  { name: "Small-Nut", damage: 1, health: 1, special: false },
+  { name: "Sting Bean", damage: 1, health: 2, special: true },
+  { name: "Pismashio", damage: 2, health: 3, special: false },
+  { name: "Potato Mine", damage: 0, health: 1, special: true },
+  { name: "Cactus", damage: 1, health: 5, special: true },
+  { name: "Sea-shroom", damage: 2, health: 2, special: true },
+  { name: "Water Chesnut", damage: 0, health: 8, special: true },
+  { name: "Pea-nut", damage: 2, health: 4, special: true },
+  { name: "Steel Magnolia", damage: 2, health: 2, special: true },
+  { name: "Plantern", damage: 3, health: 3, special: true },
+  { name: "Primal Potato Mine", damage: 0, health: 1, special: true },
+  { name: "Grizzly Pear", damage: 5, health: 4, special: true },
+  { name: "Hibernating Berry", damage: 0, health: 8, special: true },
+  { name: "Prickly Pear", damage: 0, health: 4, special: true },
+  { name: "Smackadamia", damage: 4, health: 4, special: true },
+  { name: "Tough Beets", damage: 6, health: 1, special: true },
+  { name: "Cosmic Nut", damage: 3, health: 3, special: true },
+  { name: "Starch-lord", damage: 2, health: 4, special: true },
+  { name: "Blockbuster", damage: 3, health: 3, special: true },
+  { name: "Pumpkin Shell", damage: 2, health: 4, special: true },
+  { name: "Jugger-nut", damage: 2, health: 2, special: true },
+  { name: "Guacodile", damage: 4, health: 3, special: true },
+  { name: "Mirror-nut", damage: 0, health: 11, special: true },
+  { name: "Doom-shroom", damage: 0, health: 0, special: true },
+  { name: "Galacta-cactus", damage: 2, health: 1, special: true }
+];
+
 
   let answer = characters[Math.floor(Math.random() * characters.length)];
   let guesses = [];
