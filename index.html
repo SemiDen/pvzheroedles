@@ -2,379 +2,66 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>PvZHeroedle</title>
+  <title>Notice</title>
   <style>
-     body {
-      font-family: sans-serif;
-      background-image: url('https://th.bing.com/th/id/R.a8159110bcbe91b2a50208c1f75b80be?rik=rPfe8VdxI3p0XA&pid=ImgRaw&r=0');
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-position: center;
-      min-height: 100vh;
-      color: white;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
-
-
-    .stats-header {
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
-      justify-content: space-around;
-      font-weight: bold;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 10px 0;
-      margin-top: 20px;
-    }
-
-    .guess-row {
-      display: flex;
-      justify-content: space-around;
-      margin: 5px 0;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 5px 0;
-    }
-
-    .cell {
-      flex: 1;
-      margin: 0 5px;
-      padding: 5px;
-      background-color: grey;
-      border-radius: 5px;
-    }
-
-    .correct {
-      background-color: green;
-    }
-
-    .input-container {
-      margin: 20px;
-    }
-
-    #zombie-name {
-      padding: 10px;
-      font-size: 16px;
-      width: 60%;
-    }
-
-    .suggestions {
-      background: rgba(255, 255, 255, 0.9);
-      color: black;
-      max-height: 200px;
-      overflow-y: auto;
-      margin: 10px auto;
-      width: 60%;
-    }
-
-    .suggestions div {
-      padding: 5px;
-      cursor: pointer;
-    }
-
-    .suggestions div:hover {
-      background-color: lightgray;
-    }
-
-    .popup {
-      position: fixed;
-      top: 30%;
-      left: 50%;
-      transform: translate(-50%, -30%);
-      background: white;
-      color: black;
-      padding: 20px;
-      border-radius: 10px;
-      display: none;
-      z-index: 999;
-    }
-
-    .popup h2 {
-      margin: 0 0 10px 0;
-    }
-
-    .popup .close {
-      position: absolute;
-      top: 5px;
-      right: 10px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .plant-info {
-      margin-top: 5px;
-      font-size: 14px;
-    }
-
-    .notice {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.9);
-      color: white;
-      display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      z-index: 9999;
-      font-size: 20px;
+      text-align: center;
+      height: 100vh;
+      margin: 0;
       padding: 20px;
     }
 
-    .notice-content {
-      background-color: rgba(255, 0, 0, 0.9);
-      padding: 30px;
-      border-radius: 10px;
-      max-width: 600px;
-      text-align: center;
-      position: relative;
+    h1 {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      color: #ff5555;
+      letter-spacing: 2px;
     }
 
-    .notice .close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 30px;
-      cursor: pointer;
-      color: white;
+    p {
+      font-size: 1.3rem;
+      max-width: 800px;
+      line-height: 1.6;
     }
 
-    .notice .close:hover {
-      color: black;
+    a {
+      color: #00aaff;
+      text-decoration: none;
+      font-weight: bold;
     }
 
-    .plant-info {
-      margin-top: 5px;
-      font-size: 14px;
+    a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 3rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
 <body>
-
-<!-- Notice Modal -->
-<div id="notice" class="notice">
-  <div class="notice-content">
-    <div class="close" onclick="closeNotice()">❌</div>
-    <h2>NOTICE</h2>
-    <p>
-      The game was developed by SemiDen / @candyapple.png on Discord and a friend who doesn't wanna have their social name said. If you have any problems, please ping me!<br>
-      The game you are about to play is not affiliated with PopCap or EA, this is a fangame of Wordle and PvZ Heroes.<br>
-      There aren't many plants at the moment but will be soon, there are also many wrong stats as we really just copied and pasted for some plants (stats will be fixed in a week because we want to make it have alot of plants!<br>
-      Also, type the plant name and press the plant to guess! The ui is 'kinda' bugged on mobile, sorry.
-    </p>
-  </div>
-</div>
-
-
-<div class="input-container">
-  <input type="text" id="zombie-name" placeholder="Guess a PvZ Heroes plant..." oninput="updateSuggestions()">
-  <div class="suggestions" id="suggestions"></div>
-</div>
-
-<div class="stats-header">
-  <span>Turn</span>
-  <span>Health</span>
-  <span>Damage</span>
-  <span>Special</span>
-</div>
-
-<div id="guesses"></div>
-
-<div class="popup" id="popup">
-  <span class="close" onclick="closePopup()">❌</span>
-  <h2>You won the PvZHeroedle!</h2>
-  <pre id="resultText"></pre>
-</div>
-
-<script>
-  const characters = [
-  { name: "Peashooter", damage: 1, health: 1, special: false },
-  { name: "Wall-nut", damage: 0, health: 6, special: false },
-  { name: "Lily Pad", damage: 0, health: 1, special: true },
-  { name: "Cabbage-pult", damage: 1, health: 3, special: true },
-  { name: "Kernel-pult", damage: 2, health: 3, special: true },
-  { name: "Threepeater", damage: 1, health: 5, special: true },
-  { name: "Spineapple", damage: 0, health: 3, special: true },
-  { name: "Repeater", damage: 2, health: 2, special: true },
-  { name: "Small-Nut", damage: 1, health: 1, special: false },
-  { name: "Sting Bean", damage: 1, health: 2, special: true },
-  { name: "Pismashio", damage: 2, health: 3, special: false },
-  { name: "Potato Mine", damage: 0, health: 1, special: true },
-  { name: "Cactus", damage: 1, health: 5, special: true },
-  { name: "Sea-shroom", damage: 2, health: 2, special: true },
-  { name: "Water Chesnut", damage: 0, health: 8, special: true },
-  { name: "Pea-nut", damage: 2, health: 4, special: true },
-  { name: "Steel Magnolia", damage: 2, health: 2, special: true },
-  { name: "Plantern", damage: 3, health: 3, special: true },
-  { name: "Primal Potato Mine", damage: 0, health: 1, special: true },
-  { name: "Grizzly Pear", damage: 5, health: 4, special: true },
-  { name: "Hibernating Berry", damage: 0, health: 8, special: true },
-  { name: "Prickly Pear", damage: 0, health: 4, special: true },
-  { name: "Smackadamia", damage: 4, health: 4, special: true },
-  { name: "Tough Beets", damage: 6, health: 1, special: true },
-  { name: "Cosmic Nut", damage: 3, health: 3, special: true },
-  { name: "Starch-lord", damage: 2, health: 4, special: true },
-  { name: "Blockbuster", damage: 3, health: 3, special: true },
-  { name: "Pumpkin Shell", damage: 2, health: 4, special: true },
-  { name: "Jugger-nut", damage: 2, health: 2, special: true },
-  { name: "Guacodile", damage: 4, health: 3, special: true },
-  { name: "Mirror-nut", damage: 0, health: 11, special: true },
-  { name: "Doom-shroom", damage: 0, health: 0, special: true },
-  { name: "Gravitree", damage: 7, health: 7, special: true },
-  { name: "Three-nut", damage: 3, health: 2, special: true },
-  { name: "Primal wall-nut", damage: 0, health: 9, special: true },
-  { name: "Marine bean", damage: 3, health: 2, special: true },
-  { name: "Poppin' poppies", damage: 4, health: 4, special: true },
-  { name: "Soul patch", damage: 5, health: 10, special: true },
-  { name: "Body-gourd", damage: 3, health: 6, special: true },
-  { name: "Pecanolith", damage: 0, health: 7, special: true },
-  { name: "Tricarrotops", damage: 1, health: 2, special: true },
-  { name: "Galacta-cactus", damage: 2, health: 1, special: true },
-  { name: "Loco Coco", damage: 3, health: 3, special: true },
-  { name: "Forget-Me-Nuts", damage: 2, health: 2, special: true },
-  { name: "Garlic", damage: 1, health: 3, special: true },
-  { name: "Corn Dog", damage: 2, health: 3, special: true },
-  { name: "Hot Date", damage: 1, health: 2, special: true },
-  { name: "Health-Nut", damage: 0, health: 6, special: true },
-  { name: "Pear Cub", damage: 2, health: 2, special: true },
-  { name: "Shamrocket", damage: 0, health: 0, special: true },
-  { name: "Red Stinger", damage: 2, health: 3, special: true },
-  { name: "Button Mushroom", damage: 1, health: 1, special: false },
-  { name: "Berry Blast", damage: 3, health: 0, special: true },
-  { name: "Buff-Shroom", damage: 1, health: 1, special: true },
-  { name: "Seedling", damage: 1, health: 1, special: true },
-  { name: "Zapricot", damage: 2, health: 2, special: true },
-  { name: "Poison Mushroom", damage: 2, health: 2, special: true },
-  { name: "Berry Angry", damage: 3, health: 3, special: true },
-  { name: "Mushroom Ringleader", damage: 2, health: 2, special: true },
-  { name: "Poison Ivy", damage: 3, health: 3, special: true },
-  { name: "Pair of Pears", damage: 2, health: 2, special: true },
-  { name: "Bluesberry", damage: 3, health: 2, special: true },
-  { name: "Sizzle", damage: 2, health: 2, special: true },
-  { name: "Banana Bomb", damage: 3, health: 0, special: true },
-  { name: "Mushroom Grotto", damage: 0, health: 0, special: true },
-  { name: "Invasive Species", damage: 2, health: 2, special: true },
-  { name: "Puff-Shroom", damage: 1, health: 1, special: false },
-  { name: "Veloci-Radish Hatchling", damage: 2, health: 2, special: true },
-  { name: "Hot Lava", damage: 0, health: 0, special: true },
-  { name: "Shroom for Two", damage: 2, health: 2, special: true },
-  { name: "Wild Berry", damage: 3, health: 3, special: true },
-  { name: "Petal-Morphosis", damage: 0, health: 0, special: true },
-  { name: "Sour Grapes", damage: 3, health: 3, special: true },
-  { name: "Poison Oak", damage: 3, health: 3, special: true },
-  { name: "Cosmic Mushroom", damage: 2, health: 2, special: true },
-  { name: "Lava Guava", damage: 4, health: 4, special: true },
-  { name: "Cro-Magnolia", damage: 3, health: 3, special: true },
-  { name: "Shelf Mushroom", damage: 2, health: 2, special: true },
-  { name: "Punish-Shroom", damage: 3, health: 3, special: true },
-  { name: "Sergeant Strongberry", damage: 4, health: 4, special: true },
-  { name: "Cherry Bomb", damage: 0, health: 0, special: true },
-  { name: "Grapes of Wrath", damage: 3, health: 3, special: true },
-  { name: "Astro-Shroom", damage: 2, health: 2, special: true },
-  { name: "Banana Launcher", damage: 5, health: 5, special: true },
-  { name: "Pair Pearadise", damage: 2, health: 2, special: true },
-  { name: "Fireweed", damage: 3, health: 3, special: true },
-  { name: "Imitater", damage: 0, health: 0, special: true },
-  { name: "Strawberrian", damage: 4, health: 4, special: true },
-  { name: "Pineclone", damage: 2, health: 2, special: true },
-  { name: "Dandy Lion King", damage: 3, health: 3, special: true },
-  { name: "Kernel Corn", damage: 5, health: 5, special: true },
-  { name: "Reincarnation", damage: 2, health: 2, special: true },
-];
-
-
-  let answer = characters[Math.floor(Math.random() * characters.length)];
-  let guesses = [];
-  const maxGuesses = 7;
-  let gameOver = false;
-
-  function updateSuggestions() {
-    const input = document.getElementById('zombie-name').value.toLowerCase();
-    const container = document.getElementById('suggestions');
-    container.innerHTML = '';
-    characters.filter(p => p.name.toLowerCase().includes(input)).forEach(plant => {
-      const div = document.createElement('div');
-      div.textContent = plant.name;
-      
-      // Display plant stats
-      const plantInfo = document.createElement('div');
-      plantInfo.className = 'plant-info';
-      plantInfo.innerHTML = `Health: ${plant.health} | Damage: ${plant.damage} | Special: ${plant.special ? '✔' : '✖'}`;
-      div.appendChild(plantInfo);
-      
-      div.onclick = () => makeGuess(plant);
-      container.appendChild(div);
-    });
-  }
-
-  function makeGuess(plant) {
-    if (gameOver || guesses.length >= maxGuesses) return;
-    guesses.push(plant);
-    renderGuesses();
-    document.getElementById('zombie-name').value = '';
-    document.getElementById('suggestions').innerHTML = '';
-
-    if (plant.name === answer.name) {
-      setTimeout(() => showPopup(), 300);
-    }
-
-    // Disable input after max guesses or win
-    if (guesses.length >= maxGuesses || plant.name === answer.name) {
-      gameOver = true;
-      document.getElementById('zombie-name').disabled = true;
-    }
-  }
-
-  function renderGuesses() {
-    const container = document.getElementById('guesses');
-    container.innerHTML = '';
-    for (let i = 0; i < guesses.length; i++) {
-      const guess = guesses[i];
-      const row = document.createElement('div');
-      row.className = 'guess-row';
-
-      const turn = document.createElement('div');
-      turn.className = 'cell';
-      turn.textContent = (i + 1) + '️⃣';
-      row.appendChild(turn);
-
-      ['health', 'damage', 'special'].forEach(stat => {
-        const cell = document.createElement('div');
-        cell.className = 'cell';
-        let isCorrect = guess[stat] === answer[stat];
-        if (isCorrect) cell.classList.add('correct');
-        cell.textContent = stat === 'special' ? (guess[stat] ? '✔' : '✖') : guess[stat];
-        row.appendChild(cell);
-      });
-
-      container.appendChild(row);
-    }
-  }
-
-  function showPopup() {
-    const popup = document.getElementById('popup');
-    const result = document.getElementById('resultText');
-    result.textContent = "I won the PvZHeroedle!\n";
-    for (let i = guesses.length - 1; i >= 0; i--) {
-      const guess = guesses[i];
-      let line = (i + 1) + '️⃣';
-      ['health', 'damage', 'special'].forEach(stat => {
-        line += guess[stat] === answer[stat] ? '🟩' : '🟥';
-      });
-      result.textContent += line + '\n';
-    }
-    result.textContent += "Play PvZHeroedle at https://semiden.github.io/pvzheroedles/";
-    popup.style.display = 'block';
-  }
-
-  function closePopup() {
-    document.getElementById('popup').style.display = 'none';
-  }
-
-  function closeNotice() {
-    document.getElementById('notice').style.display = 'none';
-  }
-</script>
-
+  <h1>NOTICE</h1>
+  <p>
+    PvZHeroedle and PvZGw2dle has been shut down, this is because of reasons I will not discuss.
+    <br><br>
+    If you'd like to still view whatever I post... go to my YouTube channel:
+    <br>
+    <a href="https://www.youtube.com/@SemiDenPvZ" target="_blank">https://www.youtube.com/@SemiDenPvZ</a>
+    <br><br>
+    This is where I will be now — I'm going to learn PvZ modding overall!
+  </p>
 </body>
 </html>
